@@ -2,27 +2,27 @@ package game.algoritmos;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 import game.Tabuleiro;
+import game.Auxiliar;
 import game.Movimento;
 
-public class BuscaEmProfundidade {
-	private Stack<Tabuleiro> fronteira = new Stack<>();
+public class BuscaGulosa {
+	private List<Tabuleiro> fronteira = new ArrayList<Tabuleiro>();
 	private List<Tabuleiro> visitado = new ArrayList<Tabuleiro>();
 	
-	public BuscaEmProfundidade(Tabuleiro jogo) {
-		fronteira.push(jogo);
+	public BuscaGulosa(Tabuleiro jogo) {
+		fronteira.add(jogo);
 		execute();
 	}
 	
 	private boolean execute() {
 		int contador_Seguro = 0;
 		while(true) {
-			Tabuleiro t = fronteira.pop();
+			Tabuleiro t = fronteira.get(0);
+			fronteira.remove(0);
 			visitado.add(t);
-			if(t.isSolucao())
-				break;
+			if(t.isSolucao()) break;
 			
 			int[] p = Tabuleiro.getLocalizacaoDoVazio(t);
 			int x = p[1];
@@ -33,7 +33,7 @@ public class BuscaEmProfundidade {
 			if(Movimento.podeMoverCima(p)) {
 				Tabuleiro novo = Movimento.moverParaCima(t, p);
 				if(!visitado.contains(novo)) {
-					fronteira.push(novo);
+					fronteira.add(novo);
 					visitado.add(novo);
 				}
 			}
@@ -41,7 +41,7 @@ public class BuscaEmProfundidade {
 				Tabuleiro novo = new Tabuleiro();
 				novo = Movimento.moverParaEsquerda(t, p);
 				if(!visitado.contains(novo)) {
-					fronteira.push(novo);
+					fronteira.add(novo);
 					visitado.add(novo);
 				}
 			}
@@ -49,24 +49,25 @@ public class BuscaEmProfundidade {
 				Tabuleiro novo = new Tabuleiro();
 				novo = Movimento.moverParaDireita(t, p);
 				if(!visitado.contains(novo)) {
-					fronteira.push(novo);
+					fronteira.add(novo);
 					visitado.add(novo);
 				}
 			}
 			if(Movimento.podeMoverBaixo(p, t.getSize())) {
 				Tabuleiro novo = Movimento.moverParaBaixo(t, p);
 				if(!visitado.contains(novo)) {
-					fronteira.push(novo);
+					fronteira.add(novo);
 					visitado.add(novo);
 				}
 			}
+			fronteira = Auxiliar.sort(fronteira);
 			
 			if(contador_Seguro > 1000) {
-				break;
+				return false;
 			}
 			contador_Seguro++;
 		}
-
+		
 		System.out.println("Verificou " + contador_Seguro + " tabuleiros até encontrar a solução");
 		return true;
 	}
@@ -75,8 +76,9 @@ public class BuscaEmProfundidade {
 //		Tabuleiro a = new Tabuleiro(3);
 		//System.out.println(a);
 		
-		int [][] sol = {{1,2,3},{0,4,5},{7,8,6}};
+		int [][] sol = {{1,2,0},{4,5,3},{7,8,6}};
 		Tabuleiro solucionavel = new Tabuleiro(sol);
-		new BuscaEmProfundidade(solucionavel);
+		new BuscaGulosa(solucionavel);
 	}
 }
+

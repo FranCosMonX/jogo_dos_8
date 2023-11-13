@@ -5,8 +5,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.management.openmbean.InvalidOpenTypeException;
+
 public class Tabuleiro {
 	private int tamanho = 0;
+	private int valor_heuristica = 0;
 	private int[][] matriz;
 	private int[][] solucao;
 	
@@ -20,6 +23,7 @@ public class Tabuleiro {
 		matriz = gerarTabuleiro(tamanho).getMatriz();
 		solucao = new int[tamanho][tamanho];
 		solucao = gerarTabuleiroSolucao(tamanho).getMatriz();
+		this.valor_heuristica = getValorTabuleiro();
 	}
 	public Tabuleiro(int[][] estadoInicial) {
 		this.tamanho = estadoInicial.length;
@@ -27,6 +31,18 @@ public class Tabuleiro {
 		matriz = estadoInicial;
 		solucao = new int[tamanho][tamanho];
 		solucao = gerarTabuleiroSolucao(tamanho).getMatriz();
+		this.valor_heuristica = getValorTabuleiro();
+	}
+	public Tabuleiro(int[][] estadoInicial, int[][] solucao) {
+		if(estadoInicial.length != solucao.length || estadoInicial[0].length != solucao[0].length) {
+			throw new InvalidOpenTypeException();
+		}
+		this.tamanho = estadoInicial.length;
+		matriz = new int[tamanho][tamanho];
+		matriz = estadoInicial;
+		solucao = new int[tamanho][tamanho];
+		solucao = gerarTabuleiroSolucao(tamanho).getMatriz();
+		this.valor_heuristica = getValorTabuleiro();
 	}
 	
 	/**
@@ -48,6 +64,7 @@ public class Tabuleiro {
 		this.tamanho = estadoInicial.length;
 		matriz = new int[tamanho][tamanho];
 		matriz = estadoInicial;
+		this.valor_heuristica = getValorTabuleiro();
 	}
 	/**
 	 * verifica se é solucao. É feita a comparacaode cada elemento da matriz.
@@ -76,6 +93,28 @@ public class Tabuleiro {
 	 */
 	public int[][] getSolucao(){
 		return solucao;
+	}
+	private int getValorTabuleiro() {
+	    int valor = 0;
+	    for(int i = 0 ; i < matriz.length ;i++) {
+	        for(int j = 0 ; j < matriz.length ; j++) {
+	            int peca = matriz[i][j];
+	            if(peca != 0) { // não calculamos a distância para a peça vazia
+	                int objetivoX = (peca - 1) / matriz.length;
+	                int objetivoY = (peca - 1) % matriz.length;
+	                valor += Math.abs(i - objetivoX) + Math.abs(j - objetivoY);
+	            }
+	        }
+	    }
+	    return valor;
+	}
+
+	/**
+	 * valor usado para ordenar a fronteira de espaço de estados no algoritmo guloso
+	 * @return
+	 */
+	public int getValorHeuristica() {
+		return valor_heuristica;
 	}
 	/**
 	 * Gerar uma tabuleiro inicial
@@ -211,5 +250,7 @@ public class Tabuleiro {
 //		System.out.println(new Tabuleiro(solucionavel.getSolucao()));
 //		
 //		System.out.println(Tabuleiro.getLocalizacaoDoVazio(a)[0] + " " + Tabuleiro.getLocalizacaoDoVazio(a)[1]);
+//		
+//		System.err.println("valor heuristica tabuleiro: " + solucionavel.getValorHeuristica());
 //	}
 }
