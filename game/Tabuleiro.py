@@ -39,7 +39,7 @@ class Tabuleiro:
                 linha.append(0 if numero == 9 else numero)
                 numero += 1
             tabuleiro.append(linha)
-        print(f'tabuleiro solucao{tabuleiro}\n\n')
+        #print(f'tabuleiro solucao{tabuleiro}\n\n')
         return tabuleiro
 
     def calcularValorTabuleiro(self):
